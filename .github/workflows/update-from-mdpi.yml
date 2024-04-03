@@ -1,0 +1,143 @@
+name: Download the latest version from MDPI and push changes
+on:
+  push:
+  fork:
+
+jobs:
+  Update-from-MDPI:
+    runs-on: ubuntu-latest
+    if: github.repository == 'DanySK/Template-LaTeX-MDPI'
+    steps:
+      - name: Checkout
+        uses: danysk/action-checkout@0.1.0
+      - run: rm -r *.tex *.bib Definitions
+      - run: wget -U 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36' 'https://www.mdpi.com/data/MDPI_template.zip'
+      - run: unzip -o MDPI_template.zip
+      - run: rm MDPI_template.zip
+      - run: |
+          cp -rlf MDPI_template/* .
+          rm -rf MDPI_template
+      - run: exec 3<> Definitions/journalnames.tex && awk -v TEXT="% !TeX root = ../template.tex" 'BEGIN {print TEXT}{print}' Definitions/journalnames.tex >&3
+      - name: Create a bibliography.bib file
+        run: |
+          echo '
+          @article{ref-journal,
+            author    = {Jacob Beal and
+                         Danilo Pianini and
+                         Mirko Viroli},
+            title     = {Aggregate Programming for the Internet of Things},
+            journal   = {Computer},
+            volume    = {48},
+            number    = {9},
+            pages     = {22--30},
+            year      = {2015},
+            url       = {https://doi.org/10.1109/MC.2015.261},
+            doi       = {10.1109/MC.2015.261},
+          }
+          @article{ref-book1,
+            author    = {Jacob Beal and
+                         Danilo Pianini and
+                         Mirko Viroli},
+            title     = {Aggregate Programming for the Internet of Things},
+            journal   = {Computer},
+            volume    = {48},
+            number    = {9},
+            pages     = {22--30},
+            year      = {2015},
+            url       = {https://doi.org/10.1109/MC.2015.261},
+            doi       = {10.1109/MC.2015.261},
+          }
+          @article{ref-book2,
+            author    = {Jacob Beal and
+                         Danilo Pianini and
+                         Mirko Viroli},
+            title     = {Aggregate Programming for the Internet of Things},
+            journal   = {Computer},
+            volume    = {48},
+            number    = {9},
+            pages     = {22--30},
+            year      = {2015},
+            url       = {https://doi.org/10.1109/MC.2015.261},
+            doi       = {10.1109/MC.2015.261},
+          }
+          @article{ref-unpublish,
+            author    = {Jacob Beal and
+                         Danilo Pianini and
+                         Mirko Viroli},
+            title     = {Aggregate Programming for the Internet of Things},
+            journal   = {Computer},
+            volume    = {48},
+            number    = {9},
+            pages     = {22--30},
+            year      = {2015},
+            url       = {https://doi.org/10.1109/MC.2015.261},
+            doi       = {10.1109/MC.2015.261},
+          }
+          @article{ref-communication,
+            author    = {Jacob Beal and
+                         Danilo Pianini and
+                         Mirko Viroli},
+            title     = {Aggregate Programming for the Internet of Things},
+            journal   = {Computer},
+            volume    = {48},
+            number    = {9},
+            pages     = {22--30},
+            year      = {2015},
+            url       = {https://doi.org/10.1109/MC.2015.261},
+            doi       = {10.1109/MC.2015.261},
+          }
+          @article{ref-proceeding,
+            author    = {Jacob Beal and
+                         Danilo Pianini and
+                         Mirko Viroli},
+            title     = {Aggregate Programming for the Internet of Things},
+            journal   = {Computer},
+            volume    = {48},
+            number    = {9},
+            pages     = {22--30},
+            year      = {2015},
+            url       = {https://doi.org/10.1109/MC.2015.261},
+            doi       = {10.1109/MC.2015.261},
+          }
+          @article{ref-thesis,
+            author    = {Jacob Beal and
+                         Danilo Pianini and
+                         Mirko Viroli},
+            title     = {Aggregate Programming for the Internet of Things},
+            journal   = {Computer},
+            volume    = {48},
+            number    = {9},
+            pages     = {22--30},
+            year      = {2015},
+            url       = {https://doi.org/10.1109/MC.2015.261},
+            doi       = {10.1109/MC.2015.261},
+          }
+          @article{ref-url,
+            author    = {Jacob Beal and
+                         Danilo Pianini and
+                         Mirko Viroli},
+            title     = {Aggregate Programming for the Internet of Things},
+            journal   = {Computer},
+            volume    = {48},
+            number    = {9},
+            pages     = {22--30},
+            year      = {2015},
+            url       = {https://doi.org/10.1109/MC.2015.261},
+            doi       = {10.1109/MC.2015.261},
+          }
+          ' > bibliography.bib
+      - name: Use an external bibliography
+        run: |
+          sed -i 's/%\\externalbibliography{yes}/\\externalbibliography{yes}/' template.tex
+          sed -i 's/%\\bibliography{your_external_BibTeX_file}/\\bibliography{bibliography.bib}/' template.tex
+      - run: git add .
+      - name: Commit files
+        run: |
+            git config --local user.email "danilo.pianini@unibo.it"
+            git config --local user.name "Danilo Pianini disguised as a bot"
+            git diff --quiet && git diff --staged --quiet || git commit -m "Pull changes from MDPI"
+      - name: Push changes
+        uses: ad-m/github-push-action@v0.6.0
+        with:
+            github_token: ${{ secrets.GITHUB_TOKEN }}
+            branch: ${{ github.ref }}
