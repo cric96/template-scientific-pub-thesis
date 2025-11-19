@@ -9,7 +9,7 @@ jobs:
     if: github.repository == 'DanySK/Template-LaTeX-MDPI'
     steps:
       - name: Checkout
-        uses: danysk/action-checkout@0.2.24
+        uses: danysk/action-checkout@0.2.25
       - run: rm -r *.tex *.bib Definitions
       - run: wget -U 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36' 'https://www.mdpi.com/data/MDPI_template.zip'
       - run: unzip -o MDPI_template.zip
